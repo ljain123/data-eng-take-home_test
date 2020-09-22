@@ -1,0 +1,23 @@
+Question 1: Write a query to counts the number of duplicates in car table for each company.
+
+Answer) MySQL v8.0:
+
+with getserial as (
+select id,make,color,owner, rank() over(partition by owner order by make desc, color desc) as  r
+from car),
+getcount as (
+select owner, r,count(r) as c
+from getserial
+group by owner,r)
+select owner as company_id, count(owner) as number_of_duplicates
+from getcount
+where c =2
+group by owner;
+
+Question 2: Write a query to list every entry in car table and its associated company owner. If an entry doesn't have an owner in the company table, then print 'not found' in the cell.
+
+Answer) MySQL v8.0:
+
+select c.*, case when cm.name is null then 'not found' else cm.name end as name 
+from car as c
+left join company as cm on c.owner = cm.id	
